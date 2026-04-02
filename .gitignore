@@ -1,0 +1,32 @@
+# --- Python Virtual Environments ---
+.venv/
+venv/
+env/
+
+# --- Python Cache & Compiled Files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Packaging & Distribution (From pip install -e .) ---
+build/
+dist/
+*.egg-info/
+*.egg
+
+# --- PolySteg Testing & Output Files ---
+# Ignore all generated output files
+output*
+Output*
+
+# Ignore random text files used for testing
+aud.txt
+hi.txt
+lo.txt
+text.txt
+
+
+example.png
+song.wav
+Boring_Data.pdf
