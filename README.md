@@ -2,118 +2,122 @@
 
 A professional-grade, multi-format Python CLI utility designed for **stealthy data exfiltration, Red Team simulations, and covert communications**.
 
-**PolySteg** allows security researchers to conceal both **text payloads** and **raw files** inside standard **PDFs, Images, Audio, and Video files**.
+**PolySteg** allows security researchers to conceal both **text payloads** and **raw files** inside standard **PDFs, Images, Audio, and Video files**, with **built-in compression and password-based encryption**.
 
 ---
 
-# 🚀 New Update (v1.1) — Video Steganography Added 🎬
+# 🚀 What's New (v1.2)
 
-**NEW FEATURE (Added After 2 Days)**
+### 🔐 Encryption + Compression Added
 
-PolySteg now supports **Video Steganography** using **Lossless Frame-Level LSB Encoding**.
+PolySteg now supports:
 
-### 🎬 Video Steganography Features
+* Password-based encryption (`-p`)
+* Automatic compression (zlib)
+* Secure key derivation (PBKDF2)
+* AES-based encryption (Fernet)
 
-* Frame-by-frame **LSB embedding**
-* Supports **large payloads**
-* Converts output automatically to **lossless AVI**
-* **Audio preservation** using FFmpeg
-* Efficient **NumPy pixel manipulation**
-* Handles **large videos safely** using OpenCV streaming
+### Encryption Pipeline
 
-### 🔧 Technology Stack
+```
+Payload → Compress → Encrypt → Encode → Hide
+```
 
-* OpenCV (`cv2`)
-* NumPy
-* MoviePy
-* imageio_ffmpeg
-* FFmpeg (Audio Preservation)
+This significantly improves:
+
+* Stealth
+* Security
+* Payload efficiency
+
+---
+
+# 🎬 Previous Update (v1.1) — Video Steganography
+
+PolySteg now supports **Video Steganography**:
+
+* Frame-by-frame LSB embedding
+* Lossless AVI output
+* Audio preservation via FFmpeg
+* Large payload support
+* NumPy-based pixel manipulation
 
 ---
 
 # 🎯 Multi-Domain Concealment
 
-PolySteg now supports **4 stealth domains**:
-
-## 🖼️ Images (LSB)
-
-* Uses **Least Significant Bit (LSB)** manipulation
-* Supports **PNG / BMP** lossless formats
-* **3-pixel (9-bit grouping)** strategy
-* Terminator flag for precise extraction
+PolySteg now supports **4 Steganography Domains**
 
 ---
 
-## 🎵 Audio (LSB)
+## 🖼️ Image Steganography
 
-* Embeds payload inside **WAV audio samples**
-* Modifies amplitude values
-* Maintains **auditory transparency**
-* Supports **text & full file payloads**
-
----
-
-## 📄 PDF (Metadata Injection)
-
-* Injects payloads into **custom metadata fields**
-* Uses dictionary objects (example: `/LicenseCode`)
-* Ensures **data persistence**
-* Clean extraction workflow
+* LSB pixel manipulation
+* PNG / BMP support
+* 3-pixel (9-bit grouping)
+* Terminator flag detection
 
 ---
 
-## 🎬 Video (Frame LSB Encoding) — NEW
+## 🎵 Audio Steganography
 
-* Frame-by-frame pixel encoding
+* WAV amplitude manipulation
+* Binary payload embedding
+* No audible distortion
+* File & message payload support
+
+---
+
+## 📄 PDF Steganography
+
+* Custom metadata injection
+* Persistent hidden payload
+* Clean extraction
+* Custom metadata keys
+
+---
+
+## 🎬 Video Steganography
+
+* Frame-level embedding
 * Lossless AVI output
-* Audio preserved automatically
-* Large payload support
-* Efficient NumPy processing
+* Audio preserved
+* Large payload capacity
 
 ---
 
-# 🔐 Payload Flexibility
+# 🔐 Encryption Features
 
-PolySteg supports:
+* Password-based encryption (`-p`)
+* PBKDF2 key derivation
+* AES-based Fernet encryption
+* Automatic compression
+* Secure payload handling
 
-* Hide **Text Messages** (`-m`)
-* Hide **Entire Files** (`-hf`)
-* Extract payloads seamlessly
+Example:
+
+```bash
+polysteg -e -t image -f cover.png -hf payload.zip -p mypassword -o secret.png
+```
+
+Extract:
+
+```bash
+polysteg -d -t image -f secret.png -p mypassword
+```
 
 ---
 
 # 🌍 Global CLI Execution
 
-Packaged using **setup.py** allowing:
-
-* Global execution
-* CLI-based workflow
-* Red-team automation friendly
-
----
-
-# ⚙️ Installation
-
-Clone the repository:
+PolySteg installs globally using `setup.py`
 
 ```bash
 git clone https://github.com/ALCHEMISTDEV-007/PolySteg.git
 cd PolySteg
-```
-
-Install dependencies:
-
-```bash
 pip install -e .
 ```
 
-Video dependencies:
-
-```bash
-pip install opencv-python moviepy numpy imageio_ffmpeg
-```
-
-Verify installation:
+Verify:
 
 ```bash
 polysteg -h
@@ -121,78 +125,97 @@ polysteg -h
 
 ---
 
-# 💻 Usage & Syntax
+# ⚙️ Dependencies
+
+Core Dependencies:
+
+```bash
+pip install cryptography numpy
+```
+
+Video Dependencies:
+
+```bash
+pip install opencv-python moviepy imageio_ffmpeg
+```
+
+---
+
+# 💻 Usage
 
 PolySteg requires:
 
-* Operation flag (`-e` encrypt / `-d` decrypt)
-* Target type (`-t pdf | image | audio | video`)
+* Operation flag (`-e` / `-d`)
+* Type flag (`-t`)
+
+Supported Types:
+
+```
+image
+audio
+pdf
+video
+```
 
 ---
 
-# 🖼️ Image Steganography
+# 🖼️ Image Example
 
-Hide Text:
+Hide message:
 
 ```bash
-polysteg -e -t image -f cover.png -m "Target acquired." -o secret.png
+polysteg -e -t image -f cover.png -m "Hidden message" -o output.png
 ```
 
-Hide File:
+Hide file with encryption:
 
 ```bash
-polysteg -e -t image -f cover.png -hf keys.zip -o secret.png
+polysteg -e -t image -f cover.png -hf payload.zip -p password -o output.png
 ```
 
 Extract:
 
 ```bash
-polysteg -d -t image -f secret.png
+polysteg -d -t image -f output.png -p password
 ```
 
 ---
 
-# 🎵 Audio Steganography
-
-Hide File:
+# 🎵 Audio Example
 
 ```bash
-polysteg -e -t audio -f track.wav -hf payload.exe -o transmission.wav
+polysteg -e -t audio -f input.wav -hf payload.zip -o output.wav
 ```
 
 Extract:
 
 ```bash
-polysteg -d -t audio -f transmission.wav -o extracted_payload.exe
+polysteg -d -t audio -f output.wav
 ```
 
 ---
 
-# 📄 PDF Steganography
-
-Hide Text:
+# 📄 PDF Example
 
 ```bash
-polysteg -e -t pdf -f report.pdf -mn /Classified -m "Server IPs enclosed" -o final_report.pdf
+polysteg -e -t pdf -f report.pdf -mn /HiddenKey -m "Secret" -o output.pdf
 ```
 
 Extract:
 
 ```bash
-polysteg -d -t pdf -f final_report.pdf -mn /Classified
+polysteg -d -t pdf -f output.pdf -mn /HiddenKey
 ```
 
 ---
 
-# 🎬 Video Steganography (NEW)
-
-Hide Text:
+# 🎬 Video Example
 
 ```bash
 polysteg -e -t video -f input.mp4 -m "Hidden message" -o output.avi
 ```
 
-Hide File:
+Hide file:
 
 ```bash
 polysteg -e -t video -f input.mp4 -hf payload.zip -o output.avi
@@ -206,41 +229,36 @@ polysteg -d -t video -f output.avi
 
 ---
 
-# 🛠️ Options Reference
+# 🛠️ CLI Options
 
 ```
--h, --help   Show help message
+-h, --help   Show help
 -d           Decrypt / Extract
 -e           Encrypt / Hide
 -t           File type (pdf, image, audio, video)
--f           Input file path
--o           Output file path
--m           Text message to hide
--mn          PDF metadata key (must start with '/')
--hf          Hidden file path
+-f           Input file
+-o           Output file
+-m           Message to hide
+-mn          Metadata key (PDF only)
+-hf          Hidden file
+-p           Password encryption
 ```
 
 ---
 
 # 🧠 Architecture
 
-PolySteg uses:
-
-* Object-Oriented Design
-* Modular Steg Classes
-* CLI Orchestrator
-* Multi-Format Handler
-
-Project Structure:
+Modular Object-Oriented Design:
 
 ```
 polysteg/
 │
 ├── steg_program.py
 ├── steg_class/
+│   ├── crypto.py
 │   ├── image_steg.py
 │   ├── audio_steg.py
-│   ├── video_steg.py   ← NEW
+│   ├── video_steg.py
 │   ├── file_metadata.py
 │
 ├── setup.py
@@ -252,23 +270,23 @@ polysteg/
 # 🔥 Use Cases
 
 * Red Team Operations
-* Covert Communications
+* Covert Communication
 * Data Exfiltration Simulation
 * CTF Challenges
-* Malware Analysis Research
-* Digital Forensics Practice
+* Malware Analysis
+* Digital Forensics
 
 ---
 
 # ⚠️ Disclaimer
 
-This tool is strictly for:
+This tool is intended for:
 
 * Educational purposes
 * Ethical hacking
-* Authorized security auditing
+* Authorized testing
 
-The author is **not responsible** for misuse of this software.
+The author is not responsible for misuse.
 
 ---
 
@@ -282,11 +300,11 @@ Red Teaming • Exploit Development • Offensive Security
 
 # ⭐ Support
 
-If you like this project:
+If you like the project:
 
-* ⭐ Star the repo
-* 🍴 Fork the project
-* 🧠 Contribute new techniques
+* ⭐ Star
+* 🍴 Fork
+* 🧠 Contribute
 
 ---
 
