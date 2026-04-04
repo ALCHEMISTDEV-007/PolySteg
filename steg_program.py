@@ -3,6 +3,7 @@ import os
 from steg_class.file_metadata import PDFFileMetadata
 from steg_class.image_steg import ImageSteganography
 from steg_class.audio_steg import AudioSteganography
+from steg_class.video_steg import VideoSteganography
 
 
 def encrypt(type,input_file,metadata_name,message,output_file,parser,hidden_file):
@@ -25,8 +26,13 @@ def encrypt(type,input_file,metadata_name,message,output_file,parser,hidden_file
             AudioSteganography.encrypt_file(input_file=input_file, hidden_file=hidden_file, output_file=output_file)
         else:
             AudioSteganography.encrypt(input_file=input_file, message=message, output_file=output_file)
+    elif type=='video':
+        if hidden_file:
+            VideoSteganography.encrypt_file(input_file=input_file, hidden_file=hidden_file, output_file=output_file)
+        else:
+            VideoSteganography.encrypt(input_file=input_file, message=message, output_file=output_file)
     else:
-        parser.error("Supports only pdf,image,audio")
+        parser.error("Supports only pdf,image,audio,video")
 
 def decrypt(type,input_file,parser,output_file,metadata_name):
     if type=="pdf":
@@ -44,8 +50,13 @@ def decrypt(type,input_file,parser,output_file,metadata_name):
             AudioSteganography.decrypt_file(input_file=input_file, output_file=output_file)
         else:
             AudioSteganography.decrypt(input_file=input_file)
+    elif type=='video':
+        if output_file:
+            VideoSteganography.decrypt_file(input_file=input_file, output_file=output_file)
+        else:
+            VideoSteganography.decrypt(input_file=input_file)
     else:
-        parser.error("Supports only pdf,image,audio")
+        parser.error("Supports only pdf,image,audio,video")
 
 
 def print_banner():
@@ -61,7 +72,7 @@ def print_banner():
                    |___/                |___/ """
         "\n"
         "\033[2;32m"
-        r"""      .pdf   \      .png        |    .mp3   / 
+        r"""      .pdf   \      .png        |    .mp3   /    .avi
         |       .txt       /       \     .gif"""
         "\n\n"
         "\033[1;37m"
@@ -72,7 +83,7 @@ def print_banner():
 
 def main():
     print_banner()
-    parser=argparse.ArgumentParser(description="The script which does steganography on given files such as pdf,images&audio files")
+    parser=argparse.ArgumentParser(description="The script which does steganography on given files such as pdf,images,audio & video files")
 
     parser.add_argument('-d',action='store_true',help='option decrypt')
     parser.add_argument('-e',action='store_true',help='option encrypt')
