@@ -2,25 +2,72 @@
 
 A professional-grade, multi-format Python CLI utility designed for **stealthy data exfiltration, Red Team simulations, and covert communications**.
 
-**PolySteg** allows security researchers to conceal both **text payloads** and **raw files** inside **PDFs, Images, Audio, and Video files**, with **compression, AES encryption, and metadata spoofing** for enhanced stealth.
+**PolySteg** allows security researchers to conceal **text, files, and nested payloads** inside **PDFs, Images, Audio, and Video files** with **AES encryption, compression, metadata spoofing, and nested steganography**.
 
 ---
 
-# 🚀 What's New (v1.3)
+# 🚀 What's New (v1.4)
 
-## 🧬 Metadata Spoofing (NEW)
+## 🪆 Nested Steganography (NEW)
 
-PolySteg now supports **Metadata Spoofing** for enhanced stealth and anti-forensics.
+PolySteg now supports **Nested Steganography** — hiding data **within multiple layers of cover files**.
 
-You can now:
+Example Workflow:
 
-* Spoof file metadata
-* Modify creation timestamps
-* Change author information
-* Spoof software signatures
-* Hide tool fingerprints
+```text
+Payload → Image → Audio → Video
+```
 
-This makes PolySteg **more stealthy and red-team ready**.
+This creates **multi-layer covert payload chains**.
+
+### Features
+
+* Multi-layer embedding
+* Inner-to-outer concealment
+* Multi-format nesting
+* Compatible with encryption & spoofing
+
+---
+
+# 🪆 Nested Steganography Usage
+
+### Hide Using Nested Covers
+
+```bash
+polysteg -e --nested-covers image.png audio.wav video.mp4 -hf payload.zip -o output.avi
+```
+
+Inner → Outer Order:
+
+```
+image.png → audio.wav → video.mp4
+```
+
+---
+
+### Extract Nested Payload
+
+```bash
+polysteg -d --nested-dec video audio image -f output.avi
+```
+
+Outer → Inner Order:
+
+```
+video → audio → image
+```
+
+---
+
+# 🧬 Metadata Spoofing (v1.3)
+
+PolySteg supports **metadata spoofing**:
+
+* Camera model spoofing
+* Author spoofing
+* Software signature spoofing
+* Timestamp spoofing
+* Origin metadata spoofing
 
 Example:
 
@@ -32,12 +79,12 @@ polysteg -e -t image -f cover.png -hf payload.zip --spoof
 
 # 🔐 Encryption & Compression (v1.2)
 
-PolySteg includes:
+PolySteg supports:
 
-* AES-based encryption (Fernet)
-* PBKDF2 key derivation
-* Password protection (`-p`)
-* Automatic compression (zlib)
+* AES Encryption (Fernet)
+* PBKDF2 Key Derivation
+* Password Protection (`-p`)
+* Automatic Compression
 
 Pipeline:
 
@@ -45,94 +92,29 @@ Pipeline:
 Payload → Compress → Encrypt → Hide
 ```
 
-Example:
-
-```bash
-polysteg -e -t image -f cover.png -hf payload.zip -p strongpass -o output.png
-```
-
-Extract:
-
-```bash
-polysteg -d -t image -f output.png -p strongpass
-```
-
 ---
 
 # 🎬 Video Steganography (v1.1)
 
-PolySteg supports:
-
-* Frame-level LSB encoding
+* Frame-level embedding
 * Lossless AVI output
 * Audio preservation
-* Large payload embedding
-* NumPy optimization
+* Large payload support
 
 ---
 
 # 🎯 Multi-Domain Steganography
 
-PolySteg supports **4 domains**
+PolySteg supports:
+
+* 🖼️ Image
+* 🎵 Audio
+* 📄 PDF
+* 🎬 Video
 
 ---
 
-## 🖼️ Image Steganography
-
-* LSB encoding
-* PNG / BMP support
-* Pixel-level embedding
-* Terminator flags
-
----
-
-## 🎵 Audio Steganography
-
-* WAV amplitude embedding
-* Lossless payload storage
-* File & message support
-
----
-
-## 📄 PDF Steganography
-
-* Metadata injection
-* Custom dictionary keys
-* Persistent payload storage
-
----
-
-## 🎬 Video Steganography
-
-* Frame-by-frame encoding
-* Lossless AVI output
-* Audio preservation
-* Large payload capacity
-
----
-
-# 🧬 Metadata Spoofing Features
-
-PolySteg can spoof:
-
-* Author metadata
-* Creation timestamps
-* Software signature
-* Camera/device metadata
-* File origin information
-
-Helps with:
-
-* Anti-forensics
-* Red-team stealth
-* Malware simulation
-* Research testing
-
----
-
-# 🌍 Global CLI Execution
-
-Install globally:
+# 🌍 Installation
 
 ```bash
 git clone https://github.com/ALCHEMISTDEV-007/PolySteg.git
@@ -164,28 +146,17 @@ pip install opencv-python moviepy imageio_ffmpeg
 
 ---
 
-# 💻 Usage
+# 💻 Basic Usage
 
-Supported Types:
-
-```
-image
-audio
-pdf
-video
-```
-
----
-
-# 🖼️ Image Example
-
-Hide message:
+### Hide Message
 
 ```bash
 polysteg -e -t image -f cover.png -m "Secret message" -o output.png
 ```
 
-Hide encrypted file:
+---
+
+### Hide File With Encryption
 
 ```bash
 polysteg -e -t image -f cover.png -hf payload.zip -p password -o output.png
@@ -193,26 +164,10 @@ polysteg -e -t image -f cover.png -hf payload.zip -p password -o output.png
 
 ---
 
-# 🎵 Audio Example
+### Apply Metadata Spoofing
 
 ```bash
-polysteg -e -t audio -f input.wav -hf payload.zip -o output.wav
-```
-
----
-
-# 📄 PDF Example
-
-```bash
-polysteg -e -t pdf -f report.pdf -mn /Hidden -m "Secret" -o output.pdf
-```
-
----
-
-# 🎬 Video Example
-
-```bash
-polysteg -e -t video -f input.mp4 -hf payload.zip -o output.avi
+polysteg -e -t image -f cover.png -hf payload.zip --spoof
 ```
 
 ---
@@ -220,24 +175,24 @@ polysteg -e -t video -f input.mp4 -hf payload.zip -o output.avi
 # 🛠️ CLI Options
 
 ```
--h, --help   Show help
--d           Decrypt / Extract
--e           Encrypt / Hide
--t           File type
--f           Input file
--o           Output file
--m           Message
--mn          Metadata key
--hf          Hidden file
--p           Password encryption
---spoof      Metadata spoofing
+-h, --help
+-d
+-e
+-t
+-f
+-o
+-m
+-mn
+-hf
+-p
+--spoof
+--nested-covers
+--nested-dec
 ```
 
 ---
 
 # 🧠 Architecture
-
-Modular Object-Oriented Design
 
 ```
 polysteg/
@@ -250,6 +205,7 @@ polysteg/
 │   ├── video_steg.py
 │   ├── file_metadata.py
 │   ├── metadata_spoof.py
+│   ├── nested_steg.py
 │
 ├── setup.py
 ├── README.md
@@ -260,10 +216,10 @@ polysteg/
 # 🔥 Use Cases
 
 * Red Team Operations
-* Covert Communications
-* Data Exfiltration Simulation
-* Malware Research
-* Digital Forensics
+* Covert Communication
+* Multi-Layer Data Exfiltration
+* Malware Simulation
+* Digital Forensics Research
 * CTF Challenges
 
 ---
