@@ -1,0 +1,9 @@
+numpy
+scipy
+cryptography
+piexif
+PyPDF2
+Pillow
+opencv-python
+moviepy
+imageio-ffmpeg
