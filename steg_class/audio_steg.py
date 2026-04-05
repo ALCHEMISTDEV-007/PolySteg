@@ -8,6 +8,7 @@ def turn_message_to_binary_string_list(message):
     return binary_list
 
 def turn_int_to_binary(value):
+    value = int(value)
     if value < 0:
         value = value + (2**16)
     return format(value, '016b')

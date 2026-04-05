@@ -21,6 +21,7 @@ output*
 Output*
 
 # Ignore random text files used for testing
+tests_output.txt
 aud.txt
 hi.txt
 lo.txt

@@ -118,6 +118,144 @@ def decrypt(type,input_file,parser,output_file,metadata_name,password=None):
             os.remove(temp_output_file)
 
 
+def get_file_type(filepath):
+    ext = os.path.splitext(filepath)[1].lower()
+    if ext in ['.pdf']: return 'pdf'
+    elif ext in ['.png', '.jpg', '.jpeg', '.gif', '.bmp']: return 'image'
+    elif ext in ['.mp3', '.wav', '.flac']: return 'audio'
+    elif ext in ['.mp4', '.avi', '.mkv', '.mov']: return 'video'
+    else:
+        raise ValueError(f"Unsupported file extension: {ext}")
+
+def nested_encrypt(nested_covers, metadata_name, message, hidden_file, output_file, parser, password=None, spoof_hint=None):
+    temp_files = []
+    current_payload = hidden_file
+    current_message = message
+    
+    try:
+        if password:
+            if hidden_file:
+                with open(hidden_file, 'rb') as f:
+                    data = f.read()
+            elif message:
+                data = message.encode('utf-8')
+            else:
+                parser.error("A message or hidden file is required for encryption")
+
+            encrypted_data = CryptoHelpers.secure_encrypt(data, password)
+            temp_enc_file = ".temp_nested_pass_payload.tmp"
+            with open(temp_enc_file, 'wb') as f:
+                f.write(encrypted_data)
+            
+            temp_files.append(temp_enc_file)
+            current_payload = temp_enc_file
+            current_message = None
+
+        if not current_payload and not current_message:
+            parser.error("A message or hidden file is required for encryption")
+
+        for i, cover_file in enumerate(nested_covers):
+            ftype = get_file_type(cover_file)
+            
+            if i == len(nested_covers) - 1:
+                layer_output = output_file
+            else:
+                layer_output = f".temp_nested_layer_{i}.tmp"
+                temp_files.append(layer_output)
+            
+            current_mn = metadata_name
+            if ftype == 'pdf' and not current_mn:
+                current_mn = "/NestedLayer"
+                
+            encrypt(
+                type=ftype,
+                input_file=cover_file,
+                metadata_name=current_mn,
+                message=current_message,
+                output_file=layer_output,
+                parser=parser,
+                hidden_file=current_payload,
+                password=None, 
+                spoof_hint=spoof_hint
+            )
+            
+            current_payload = layer_output
+            current_message = None
+            
+        print(f"Successfully nested data through {len(nested_covers)} layers. Final output: {output_file}")
+    finally:
+        for tmp in temp_files:
+            if os.path.exists(tmp):
+                try:
+                    os.remove(tmp)
+                except Exception:
+                    pass
+
+def nested_decrypt(nested_types, input_file, metadata_name, output_file, parser, password=None):
+    temp_files = []
+    current_input = input_file
+    
+    try:
+        for i, ftype in enumerate(nested_types):
+            if i == len(nested_types) - 1:
+                layer_output = output_file if output_file else ".temp_nested_final.tmp"
+                if not output_file:
+                    temp_files.append(layer_output)
+            else:
+                layer_output = f".temp_nested_layer_dec_{i}.tmp"
+                temp_files.append(layer_output)
+            
+            current_mn = metadata_name
+            if ftype == 'pdf' and not current_mn:
+                current_mn = "/NestedLayer"
+                
+            decrypt(
+                type=ftype,
+                input_file=current_input,
+                parser=parser,
+                output_file=layer_output,
+                metadata_name=current_mn,
+                password=None 
+            )
+            
+            current_input = layer_output
+
+        final_file = current_input
+        if password:
+            if not os.path.exists(final_file):
+                print("Failed to extract nested data.")
+                return
+            
+            with open(final_file, 'rb') as f:
+                encrypted_data = f.read()
+                
+            try:
+                decrypted_bytes = CryptoHelpers.secure_decrypt(encrypted_data, password)
+            except Exception as e:
+                parser.error(f"Decryption failed at password validation: {e}")
+                
+            if output_file:
+                with open(output_file, 'wb') as f:
+                    f.write(decrypted_bytes)
+                print(f"Successfully decrypted nested multi-layer data and saved to {output_file}")
+            else:
+                print(f"Decrypted nested message: {decrypted_bytes.decode('utf-8', errors='replace')}")
+        else:
+            if output_file:
+                print(f"Successfully decrypted nested multi-layer data and saved to {output_file}")
+            elif os.path.exists(final_file):
+                 with open(final_file, 'rb') as f:
+                     data = f.read()
+                 print(f"Decrypted nested message: {data.decode('utf-8', errors='replace')}")
+
+    finally:
+        for tmp in temp_files:
+            if os.path.exists(tmp):
+                try:
+                    os.remove(tmp)
+                except Exception:
+                    pass
+
 def print_banner():
     os.system("")
     banner = (
@@ -146,14 +284,16 @@ def main():
 
     parser.add_argument('-d',action='store_true',help='option decrypt')
     parser.add_argument('-e',action='store_true',help='option encrypt')
-    parser.add_argument('-t',required=True,type=str,help='The type of file that steganography will be performed on')
-    parser.add_argument('-f',required=True,type=str,help='The input file path')
+    parser.add_argument('-t',required=False,type=str,help='The type of file that steganography will be performed on')
+    parser.add_argument('-f',required=False,type=str,help='The input file path')
     parser.add_argument('-o',required=False,type=str,help='The output file path')
     parser.add_argument('-m',required=False,type=str,help='The Message you want to hide (compressed and encrypted if -p used)')
     parser.add_argument('-mn',required=False,type=str,help='The Metadata key name, must start with /')
     parser.add_argument('-hf',required=False,type=str,help='The file that you want to hide (compressed and encrypted if -p used)')
     parser.add_argument('-p',required=False,type=str,help='The password to securely encrypt and compress the payload')
     parser.add_argument('--spoof',required=False,type=str,help='Apply fake metadata (e.g. Camera Model, Author, Software) to mislead forensics')
+    parser.add_argument('--nested-covers',nargs='+',help='List of cover files for nested steganography (inner to outer)')
+    parser.add_argument('--nested-dec',nargs='+',help='List of file types for decrypting nested steganography (outer to inner)')
 
     args=parser.parse_args()
 
@@ -161,12 +301,28 @@ def main():
         parser.error("The script requires a encrypt or decrypt method")
     
     if args.d:
-        decrypt(type=args.t,input_file=args.f,parser=parser,output_file=args.o,metadata_name=args.mn,password=args.p)
-    elif args.e:
-        if args.e and (args.m or args.hf):
-            encrypt(type=args.t,input_file=args.f,metadata_name=args.mn,message=args.m,output_file=args.o,parser=parser,hidden_file=args.hf,password=args.p,spoof_hint=args.spoof)
+        if args.nested_dec:
+            if not args.f:
+                parser.error("An input file -f is required for nested decryption")
+            nested_decrypt(nested_types=args.nested_dec, input_file=args.f, metadata_name=args.mn, output_file=args.o, parser=parser, password=args.p)
         else:
-            parser.error('The script requires a output file and message/hidden file for encryption')
+            if not args.t or not args.f:
+                parser.error("Decryption requires -t and -f (or --nested-dec)")
+            decrypt(type=args.t,input_file=args.f,parser=parser,output_file=args.o,metadata_name=args.mn,password=args.p)
+    elif args.e:
+        if args.nested_covers:
+            if not args.m and not args.hf:
+                parser.error('Nested encryption requires a message or hidden file')
+            if not args.o:
+                parser.error('Nested encryption requires an output file -o')
+            nested_encrypt(nested_covers=args.nested_covers, metadata_name=args.mn, message=args.m, hidden_file=args.hf, output_file=args.o, parser=parser, password=args.p, spoof_hint=args.spoof)
+        else:
+            if not args.t or not args.f:
+                parser.error("Encryption requires -t and -f (or --nested-covers)")
+            if args.m or args.hf:
+                encrypt(type=args.t,input_file=args.f,metadata_name=args.mn,message=args.m,output_file=args.o,parser=parser,hidden_file=args.hf,password=args.p,spoof_hint=args.spoof)
+            else:
+                parser.error('The script requires a output file and message/hidden file for encryption')
 
 if __name__== "__main__":
     main()

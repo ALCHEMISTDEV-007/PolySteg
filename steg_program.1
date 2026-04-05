@@ -1,0 +1,90 @@
+.TH POLYSTEG 1 "April 2026" "v1.0" "PolySteg User Manual"
+.SH NAME
+steg_program.py \- A multi-layered advanced steganography tool
+.SH SYNOPSIS
+.B python steg_program.py
+[\-e | \-d] [\-t TYPE] [\-f INPUT_FILE] [\-o OUTPUT_FILE] [OPTIONS]
+.P
+.B python steg_program.py -e --nested-covers
+\fIfile1 file2 ...\fR [OPTIONS]
+.P
+.B python steg_program.py -d -f
+\fIfile\fR --nested-dec \fItype1 type2 ...\fR [OPTIONS]
+
+.SH DESCRIPTION
+PolySteg is a command-line steganography utility capable of concealing texts or arbitrary files within PDFs, Images, Audio, and Video files. Built with advanced red-teaming capabilities, PolySteg supports payload AES encryption/compression, metadata spoofing, and nested ("Russian Doll") multi-layer steganography.
+
+.SH REQUIRED ARGUMENTS
+.TP
+.BR "\-e", " \-\-encrypt"
+Encrypt and hide a payload into a cover file. Must be used with \-m or \-hf.
+.TP
+.BR "\-d", " \-\-decrypt"
+Decrypt and extract a payload from a cover file.
+.TP
+.BR "\-t", " TYPE"
+The type of steganography to be performed on the cover-file. Supported types are: \fBpdf\fR, \fBimage\fR, \fBaudio\fR, \fBvideo\fR. Required unless nested steganography is employed.
+.TP
+.BR "\-f", " INPUT_FILE"
+The target cover file (for encryption) or stego file (for decryption). Required unless encryption is nested, using --nested-covers.
+
+.SH OPTIONAL ARGUMENTS / PAYLOADS
+.TP
+.BR "\-o", " OUTPUT_FILE"
+Path to output the generated stego-object or standard extracted files.
+.TP
+.BR "\-m", " MESSAGE"
+A raw text message to conceal. Do not use alongside \-hf.
+.TP
+.BR "\-hf", " HIDDEN_FILE"
+A path to a file you wish to conceal inside the cover file.
+.TP
+.BR "\-p", " PASSWORD"
+Triggers AES encryption and ZLIB compression. When hiding, the payload is securely wrapped and encrypted using the provided password before being embedded. When decrypting, this password is required to reveal the hidden data.
+.TP
+.BR "\-mn", " METADATA_KEY"
+Required primarily for PDF Steganography. The metadata key string where data is injected or retrieved. Automatically handled in nested steganography.
+.TP
+.BR "\-\-spoof", " SPOOF_HINT"
+Applies misleading metadata tags to media files to distract forensic analysts. Supported spoof hints: \fBCanon\fR, \fBNikon\fR, \fBPhotoshop\fR, etc.
+
+.SH NESTED STEGANOGRAPHY
+Instead of manually piping one steganography operation into another, PolySteg automated Multi-Layer Steganography. 
+.TP
+.BR "\-\-nested-covers", " file1 file2 file3 ..."
+Pass an array of cover files from innermost to outermost. PolySteg routes the data through each format seamlessly.
+.TP
+.BR "\-\-nested-dec", " type1 type2 type3 ..."
+Pass an array of string types mapping to the layers from outermost to innermost to seamlessly unwrap data. 
+
+.SH EXAMPLES
+.B Basic Steganography
+Hide a text phrase inside an image:
+.RS 4
+python steg_program.py \-e \-t image \-f my_photo.png \-m "Secret Message" \-o output.png
+.RE
+
+.B Secure PDF Payload
+Hide an entire zip file inside a PDF, encrypted with AES:
+.RS 4
+python steg_program.py \-e \-t pdf \-f doc.pdf \-hf secret.zip \-o clean.pdf \-mn "/AuthorNotes" \-p "MyStrongPassword"
+.RE
+
+.B Extracting The Secure PDF
+.RS 4
+python steg_program.py \-d \-t pdf \-f clean.pdf \-mn "/AuthorNotes" \-p "MyStrongPassword" \-o secret.zip
+.RE
+
+.B Nested Steganography Workflow
+Hide "TOP SECRET" text inside a PDF, and then hide that PDF inside an Audio file, and then hide the audio inside a Video:
+.RS 4
+python steg_program.py \-e \-\-nested-covers inner.pdf middle.mp3 outer.avi \-m "TOP SECRET" \-o final.avi
+.RE
+
+.B Decrypting The Nested Workflow
+.RS 4
+python steg_program.py \-d \-f final.avi \-\-nested-dec video audio pdf
+.RE
+
+.SH AUTHOR
+Written by Alchemist (and Antigravity).
