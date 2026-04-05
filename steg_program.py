@@ -7,7 +7,7 @@ from steg_class.video_steg import VideoSteganography
 from steg_class.crypto import CryptoHelpers
 
 
-def encrypt(type,input_file,metadata_name,message,output_file,parser,hidden_file,password=None):
+def encrypt(type,input_file,metadata_name,message,output_file,parser,hidden_file,password=None,spoof_hint=None):
     temp_hidden_file = None
     if password:
         try:
@@ -33,18 +33,18 @@ def encrypt(type,input_file,metadata_name,message,output_file,parser,hidden_file
     try:
         if type=="pdf":
             if metadata_name and message:
-                PDFFileMetadata.encrypt(file_path=input_file,metadata_key_name=metadata_name,output_file_path=output_file,message=message)
+                PDFFileMetadata.encrypt(file_path=input_file,metadata_key_name=metadata_name,output_file_path=output_file,message=message,spoof_hint=spoof_hint)
             elif metadata_name and hidden_file:
-                PDFFileMetadata.encryptfile(file_path=input_file,metadata_key_name=metadata_name,hidden_file=hidden_file,output_file_path=output_file)
+                PDFFileMetadata.encryptfile(file_path=input_file,metadata_key_name=metadata_name,hidden_file=hidden_file,output_file_path=output_file,spoof_hint=spoof_hint)
             else:
                 print("PDF requires a mn flag for encrypting")
         
         elif type=='image':
             
             if hidden_file:
-                ImageSteganography.encrypt_file(input_file=input_file,hidden_file=hidden_file,output_file=output_file)
+                ImageSteganography.encrypt_file(input_file=input_file,hidden_file=hidden_file,output_file=output_file,spoof_hint=spoof_hint)
             else: 
-                ImageSteganography.encrypt(input_file=input_file,message=message,output_file=output_file)
+                ImageSteganography.encrypt(input_file=input_file,message=message,output_file=output_file,spoof_hint=spoof_hint)
         elif type=='audio':
             if hidden_file:
                 AudioSteganography.encrypt_file(input_file=input_file, hidden_file=hidden_file, output_file=output_file)
@@ -153,7 +153,7 @@ def main():
     parser.add_argument('-mn',required=False,type=str,help='The Metadata key name, must start with /')
     parser.add_argument('-hf',required=False,type=str,help='The file that you want to hide (compressed and encrypted if -p used)')
     parser.add_argument('-p',required=False,type=str,help='The password to securely encrypt and compress the payload')
-    
+    parser.add_argument('--spoof',required=False,type=str,help='Apply fake metadata (e.g. Camera Model, Author, Software) to mislead forensics')
 
     args=parser.parse_args()
 
@@ -164,7 +164,7 @@ def main():
         decrypt(type=args.t,input_file=args.f,parser=parser,output_file=args.o,metadata_name=args.mn,password=args.p)
     elif args.e:
         if args.e and (args.m or args.hf):
-            encrypt(type=args.t,input_file=args.f,metadata_name=args.mn,message=args.m,output_file=args.o,parser=parser,hidden_file=args.hf,password=args.p)
+            encrypt(type=args.t,input_file=args.f,metadata_name=args.mn,message=args.m,output_file=args.o,parser=parser,hidden_file=args.hf,password=args.p,spoof_hint=args.spoof)
         else:
             parser.error('The script requires a output file and message/hidden file for encryption')
 

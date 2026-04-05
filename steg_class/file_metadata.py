@@ -1,4 +1,5 @@
 import PyPDF2
+from steg_class.spoofer import MetadataSpoofer
 
 
 
@@ -38,23 +39,25 @@ class PDFFileMetadata:
             for key in metadata:
                 print(f"{key} : {metadata[key]}")
 
-    def encrypt(file_path,metadata_key_name,message,output_file_path):
+    def encrypt(file_path,metadata_key_name,message,output_file_path,spoof_hint=None):
         with open(file_path,'rb') as file:
             reader = PyPDF2.PdfReader(file)
             writer=PyPDF2.PdfWriter()
 
-            writer.append_pages_from_reader(reader)
-
             metadata=reader.metadata
-            metadata.update({metadata_key_name:message})
-            writer.add_metadata(metadata)
+            metadata_dict = dict(metadata) if metadata else {}
+            metadata_dict.update({metadata_key_name:message})
+            if spoof_hint:
+                metadata_dict.update(MetadataSpoofer.get_pdf_info(spoof_hint))
+            
+            writer.add_metadata(metadata_dict)
 
             with open(output_file_path,'wb') as output_file:
                 writer.write(output_file)
 
             print("Message hidden successfully")
             
-    def encryptfile(file_path,metadata_key_name,hidden_file,output_file_path):
+    def encryptfile(file_path,metadata_key_name,hidden_file,output_file_path,spoof_hint=None):
          with open(file_path,'rb') as file:
             reader = PyPDF2.PdfReader(file)
             writer=PyPDF2.PdfWriter()
@@ -70,8 +73,12 @@ class PDFFileMetadata:
             message=''.join(binary_list)
 
             metadata=reader.metadata
-            metadata.update({metadata_key_name:message})
-            writer.add_metadata(metadata)
+            metadata_dict = dict(metadata) if metadata else {}
+            metadata_dict.update({metadata_key_name:message})
+            if spoof_hint:
+                metadata_dict.update(MetadataSpoofer.get_pdf_info(spoof_hint))
+                
+            writer.add_metadata(metadata_dict)
 
             with open(output_file_path,'wb') as output_file:
                 writer.write(output_file)

@@ -1,6 +1,8 @@
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 from PIL import Image
+import piexif
+from steg_class.spoofer import MetadataSpoofer
 
 def convert_message_to_binary_list(message):
     binary_list=[]
@@ -107,7 +109,7 @@ def savefile(binary_string,output_file):
         
 class ImageSteganography:
 
-    def encrypt(input_file,message,output_file):
+    def encrypt(input_file,message,output_file,spoof_hint=None):
         binary_list= convert_message_to_binary_list(message)
         image=Image.open(input_file)
         if image.mode != 'RGB':
@@ -127,9 +129,14 @@ class ImageSteganography:
                     current_pixel_y=current_pixel_y+1
                 else:
                     current_pixel_x=current_pixel_x+1
-        new_image.save(output_file)
+                    
+        if spoof_hint:
+            exif_bytes = MetadataSpoofer.get_image_exif(spoof_hint)
+            new_image.save(output_file, exif=exif_bytes)
+        else:
+            new_image.save(output_file)
     
-    def encrypt_file(input_file,hidden_file,output_file):
+    def encrypt_file(input_file,hidden_file,output_file,spoof_hint=None):
         binary_list= []
         with open(hidden_file,'rb') as hf:
             file_bytes=hf.read()
@@ -155,7 +162,12 @@ class ImageSteganography:
                     current_pixel_y=current_pixel_y+1
                 else:
                     current_pixel_x=current_pixel_x+1
-        new_image.save(output_file)
+                    
+        if spoof_hint:
+            exif_bytes = MetadataSpoofer.get_image_exif(spoof_hint)
+            new_image.save(output_file, exif=exif_bytes)
+        else:
+            new_image.save(output_file)
 
 
     def decrypt(input_file):
