@@ -2,114 +2,137 @@
 
 A professional-grade, multi-format Python CLI utility designed for **stealthy data exfiltration, Red Team simulations, and covert communications**.
 
-**PolySteg** allows security researchers to conceal both **text payloads** and **raw files** inside standard **PDFs, Images, Audio, and Video files**, with **built-in compression and password-based encryption**.
+**PolySteg** allows security researchers to conceal both **text payloads** and **raw files** inside **PDFs, Images, Audio, and Video files**, with **compression, AES encryption, and metadata spoofing** for enhanced stealth.
 
 ---
 
-# 🚀 What's New (v1.2)
+# 🚀 What's New (v1.3)
 
-### 🔐 Encryption + Compression Added
+## 🧬 Metadata Spoofing (NEW)
 
-PolySteg now supports:
+PolySteg now supports **Metadata Spoofing** for enhanced stealth and anti-forensics.
 
-* Password-based encryption (`-p`)
-* Automatic compression (zlib)
-* Secure key derivation (PBKDF2)
-* AES-based encryption (Fernet)
+You can now:
 
-### Encryption Pipeline
+* Spoof file metadata
+* Modify creation timestamps
+* Change author information
+* Spoof software signatures
+* Hide tool fingerprints
 
-```
-Payload → Compress → Encrypt → Encode → Hide
-```
-
-This significantly improves:
-
-* Stealth
-* Security
-* Payload efficiency
-
----
-
-# 🎬 Previous Update (v1.1) — Video Steganography
-
-PolySteg now supports **Video Steganography**:
-
-* Frame-by-frame LSB embedding
-* Lossless AVI output
-* Audio preservation via FFmpeg
-* Large payload support
-* NumPy-based pixel manipulation
-
----
-
-# 🎯 Multi-Domain Concealment
-
-PolySteg now supports **4 Steganography Domains**
-
----
-
-## 🖼️ Image Steganography
-
-* LSB pixel manipulation
-* PNG / BMP support
-* 3-pixel (9-bit grouping)
-* Terminator flag detection
-
----
-
-## 🎵 Audio Steganography
-
-* WAV amplitude manipulation
-* Binary payload embedding
-* No audible distortion
-* File & message payload support
-
----
-
-## 📄 PDF Steganography
-
-* Custom metadata injection
-* Persistent hidden payload
-* Clean extraction
-* Custom metadata keys
-
----
-
-## 🎬 Video Steganography
-
-* Frame-level embedding
-* Lossless AVI output
-* Audio preserved
-* Large payload capacity
-
----
-
-# 🔐 Encryption Features
-
-* Password-based encryption (`-p`)
-* PBKDF2 key derivation
-* AES-based Fernet encryption
-* Automatic compression
-* Secure payload handling
+This makes PolySteg **more stealthy and red-team ready**.
 
 Example:
 
 ```bash
-polysteg -e -t image -f cover.png -hf payload.zip -p mypassword -o secret.png
+polysteg -e -t image -f cover.png -hf payload.zip --spoof
+```
+
+---
+
+# 🔐 Encryption & Compression (v1.2)
+
+PolySteg includes:
+
+* AES-based encryption (Fernet)
+* PBKDF2 key derivation
+* Password protection (`-p`)
+* Automatic compression (zlib)
+
+Pipeline:
+
+```
+Payload → Compress → Encrypt → Hide
+```
+
+Example:
+
+```bash
+polysteg -e -t image -f cover.png -hf payload.zip -p strongpass -o output.png
 ```
 
 Extract:
 
 ```bash
-polysteg -d -t image -f secret.png -p mypassword
+polysteg -d -t image -f output.png -p strongpass
 ```
+
+---
+
+# 🎬 Video Steganography (v1.1)
+
+PolySteg supports:
+
+* Frame-level LSB encoding
+* Lossless AVI output
+* Audio preservation
+* Large payload embedding
+* NumPy optimization
+
+---
+
+# 🎯 Multi-Domain Steganography
+
+PolySteg supports **4 domains**
+
+---
+
+## 🖼️ Image Steganography
+
+* LSB encoding
+* PNG / BMP support
+* Pixel-level embedding
+* Terminator flags
+
+---
+
+## 🎵 Audio Steganography
+
+* WAV amplitude embedding
+* Lossless payload storage
+* File & message support
+
+---
+
+## 📄 PDF Steganography
+
+* Metadata injection
+* Custom dictionary keys
+* Persistent payload storage
+
+---
+
+## 🎬 Video Steganography
+
+* Frame-by-frame encoding
+* Lossless AVI output
+* Audio preservation
+* Large payload capacity
+
+---
+
+# 🧬 Metadata Spoofing Features
+
+PolySteg can spoof:
+
+* Author metadata
+* Creation timestamps
+* Software signature
+* Camera/device metadata
+* File origin information
+
+Helps with:
+
+* Anti-forensics
+* Red-team stealth
+* Malware simulation
+* Research testing
 
 ---
 
 # 🌍 Global CLI Execution
 
-PolySteg installs globally using `setup.py`
+Install globally:
 
 ```bash
 git clone https://github.com/ALCHEMISTDEV-007/PolySteg.git
@@ -127,13 +150,13 @@ polysteg -h
 
 # ⚙️ Dependencies
 
-Core Dependencies:
+Core:
 
 ```bash
 pip install cryptography numpy
 ```
 
-Video Dependencies:
+Video:
 
 ```bash
 pip install opencv-python moviepy imageio_ffmpeg
@@ -142,11 +165,6 @@ pip install opencv-python moviepy imageio_ffmpeg
 ---
 
 # 💻 Usage
-
-PolySteg requires:
-
-* Operation flag (`-e` / `-d`)
-* Type flag (`-t`)
 
 Supported Types:
 
@@ -164,19 +182,13 @@ video
 Hide message:
 
 ```bash
-polysteg -e -t image -f cover.png -m "Hidden message" -o output.png
+polysteg -e -t image -f cover.png -m "Secret message" -o output.png
 ```
 
-Hide file with encryption:
+Hide encrypted file:
 
 ```bash
 polysteg -e -t image -f cover.png -hf payload.zip -p password -o output.png
-```
-
-Extract:
-
-```bash
-polysteg -d -t image -f output.png -p password
 ```
 
 ---
@@ -187,24 +199,12 @@ polysteg -d -t image -f output.png -p password
 polysteg -e -t audio -f input.wav -hf payload.zip -o output.wav
 ```
 
-Extract:
-
-```bash
-polysteg -d -t audio -f output.wav
-```
-
 ---
 
 # 📄 PDF Example
 
 ```bash
-polysteg -e -t pdf -f report.pdf -mn /HiddenKey -m "Secret" -o output.pdf
-```
-
-Extract:
-
-```bash
-polysteg -d -t pdf -f output.pdf -mn /HiddenKey
+polysteg -e -t pdf -f report.pdf -mn /Hidden -m "Secret" -o output.pdf
 ```
 
 ---
@@ -212,19 +212,7 @@ polysteg -d -t pdf -f output.pdf -mn /HiddenKey
 # 🎬 Video Example
 
 ```bash
-polysteg -e -t video -f input.mp4 -m "Hidden message" -o output.avi
-```
-
-Hide file:
-
-```bash
 polysteg -e -t video -f input.mp4 -hf payload.zip -o output.avi
-```
-
-Extract:
-
-```bash
-polysteg -d -t video -f output.avi
 ```
 
 ---
@@ -235,20 +223,21 @@ polysteg -d -t video -f output.avi
 -h, --help   Show help
 -d           Decrypt / Extract
 -e           Encrypt / Hide
--t           File type (pdf, image, audio, video)
+-t           File type
 -f           Input file
 -o           Output file
--m           Message to hide
--mn          Metadata key (PDF only)
+-m           Message
+-mn          Metadata key
 -hf          Hidden file
 -p           Password encryption
+--spoof      Metadata spoofing
 ```
 
 ---
 
 # 🧠 Architecture
 
-Modular Object-Oriented Design:
+Modular Object-Oriented Design
 
 ```
 polysteg/
@@ -260,6 +249,7 @@ polysteg/
 │   ├── audio_steg.py
 │   ├── video_steg.py
 │   ├── file_metadata.py
+│   ├── metadata_spoof.py
 │
 ├── setup.py
 ├── README.md
@@ -270,11 +260,11 @@ polysteg/
 # 🔥 Use Cases
 
 * Red Team Operations
-* Covert Communication
+* Covert Communications
 * Data Exfiltration Simulation
-* CTF Challenges
-* Malware Analysis
+* Malware Research
 * Digital Forensics
+* CTF Challenges
 
 ---
 
@@ -284,7 +274,7 @@ This tool is intended for:
 
 * Educational purposes
 * Ethical hacking
-* Authorized testing
+* Authorized testing only
 
 The author is not responsible for misuse.
 
@@ -300,9 +290,7 @@ Red Teaming • Exploit Development • Offensive Security
 
 # ⭐ Support
 
-If you like the project:
-
-* ⭐ Star
+* ⭐ Star the repo
 * 🍴 Fork
 * 🧠 Contribute
 
